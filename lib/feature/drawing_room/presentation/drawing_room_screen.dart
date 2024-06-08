@@ -1,7 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gal/gal.dart';
-import 'package:gallery_saver/gallery_saver.dart';
-import 'package:permission_handler/permission_handler.dart';
 import '../model/drawing_point.dart';
 import 'dart:ui' as ui;
 import 'package:path_provider/path_provider.dart';
@@ -144,11 +143,13 @@ class _DrawingRoomScreenState extends State<DrawingRoomScreen> {
             child: const Icon(Icons.clear),
           ),
           const SizedBox(width: 16),
-          FloatingActionButton(
-            onPressed: saveCanvas,
-            heroTag: null,
-            child: const Icon(Icons.save),
-          ),
+          kIsWeb
+              ? Container()
+              : FloatingActionButton(
+                  onPressed: saveCanvas,
+                  heroTag: null,
+                  child: const Icon(Icons.save),
+                ),
         ],
       ),
     );
@@ -166,7 +167,7 @@ class _DrawingRoomScreenState extends State<DrawingRoomScreen> {
     final canvas = Canvas(
         recorder,
         Rect.fromPoints(
-            Offset(0, 0),
+            const Offset(0, 0),
             Offset(MediaQuery.of(context).size.width,
                 MediaQuery.of(context).size.height)));
     final paintBackground = Paint()..color = Colors.white;
@@ -185,7 +186,6 @@ class _DrawingRoomScreenState extends State<DrawingRoomScreen> {
     final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
     final buffer = byteData!.buffer.asUint8List();
 
-    // Save image to temporary directory
     final directory = (await getTemporaryDirectory()).path;
     final filePath =
         '$directory/drawing_${DateTime.now().millisecondsSinceEpoch}.png';
@@ -193,12 +193,10 @@ class _DrawingRoomScreenState extends State<DrawingRoomScreen> {
     await file.writeAsBytes(buffer);
     await Gal.putImage(file.path);
 
-    // Save image to gallery
-    // await GallerySaver.saveImage(file.path);
-
-    // Show a snackbar notification
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text('Image saved to gallery')));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image saved to gallery')));
+    }
   }
 }
 
