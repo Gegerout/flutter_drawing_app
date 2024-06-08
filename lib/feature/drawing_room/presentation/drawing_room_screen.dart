@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gal/gal.dart';
+import 'package:gallery_saver/gallery_saver.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../model/drawing_point.dart';
+import 'dart:ui' as ui;
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
 class DrawingRoomScreen extends StatefulWidget {
   const DrawingRoomScreen({super.key});
@@ -70,7 +76,6 @@ class _DrawingRoomScreenState extends State<DrawingRoomScreen> {
               ),
             ),
           ),
-
           Positioned(
             left: 16,
             right: 16,
@@ -110,7 +115,6 @@ class _DrawingRoomScreenState extends State<DrawingRoomScreen> {
               ),
             ),
           ),
-
           Positioned(
             top: MediaQuery.of(context).padding.top + 80,
             left: 0,
@@ -131,7 +135,70 @@ class _DrawingRoomScreenState extends State<DrawingRoomScreen> {
           ),
         ],
       ),
+      floatingActionButton: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            onPressed: clearCanvas,
+            heroTag: null,
+            child: const Icon(Icons.clear),
+          ),
+          const SizedBox(width: 16),
+          FloatingActionButton(
+            onPressed: saveCanvas,
+            heroTag: null,
+            child: const Icon(Icons.save),
+          ),
+        ],
+      ),
     );
+  }
+
+  void clearCanvas() {
+    setState(() {
+      drawingPoints.clear();
+    });
+  }
+
+  Future<void> saveCanvas() async {
+    // Request storage permissions
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(
+        recorder,
+        Rect.fromPoints(
+            Offset(0, 0),
+            Offset(MediaQuery.of(context).size.width,
+                MediaQuery.of(context).size.height)));
+    final paintBackground = Paint()..color = Colors.white;
+    canvas.drawRect(
+        Rect.fromLTWH(0, 0, MediaQuery.of(context).size.width,
+            MediaQuery.of(context).size.height),
+        paintBackground);
+    final painter = DrawingPainter(drawingPoints: drawingPoints);
+    painter.paint(
+        canvas,
+        Size(MediaQuery.of(context).size.width,
+            MediaQuery.of(context).size.height));
+    final picture = recorder.endRecording();
+    final img = await picture.toImage(MediaQuery.of(context).size.width.toInt(),
+        MediaQuery.of(context).size.height.toInt());
+    final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+    final buffer = byteData!.buffer.asUint8List();
+
+    // Save image to temporary directory
+    final directory = (await getTemporaryDirectory()).path;
+    final filePath =
+        '$directory/drawing_${DateTime.now().millisecondsSinceEpoch}.png';
+    final file = File(filePath);
+    await file.writeAsBytes(buffer);
+    await Gal.putImage(file.path);
+
+    // Save image to gallery
+    // await GallerySaver.saveImage(file.path);
+
+    // Show a snackbar notification
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text('Image saved to gallery')));
   }
 }
 
