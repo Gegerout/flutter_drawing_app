@@ -19,8 +19,7 @@ class _DrawingRoomScreenState extends State<DrawingRoomScreen> {
     Colors.red,
     Colors.amber,
     Colors.blue,
-    Colors.green,
-    Colors.brown,
+    Colors.green
   ];
 
   var drawingPoints = <DrawingPoint>[];
@@ -162,7 +161,6 @@ class _DrawingRoomScreenState extends State<DrawingRoomScreen> {
   }
 
   Future<void> saveCanvas() async {
-    // Request storage permissions
     final recorder = ui.PictureRecorder();
     final canvas = Canvas(
         recorder,
