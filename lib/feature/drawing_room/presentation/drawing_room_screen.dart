@@ -14,7 +14,7 @@ class DrawingRoomScreen extends StatefulWidget {
 }
 
 class _DrawingRoomScreenState extends State<DrawingRoomScreen> {
-  var avaiableColor = [
+  var availableColor = [
     Colors.black,
     Colors.red,
     Colors.amber,
@@ -82,7 +82,7 @@ class _DrawingRoomScreenState extends State<DrawingRoomScreen> {
               height: 80,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: avaiableColor.length,
+                itemCount: availableColor.length,
                 separatorBuilder: (_, __) {
                   return const SizedBox(width: 8);
                 },
@@ -90,18 +90,18 @@ class _DrawingRoomScreenState extends State<DrawingRoomScreen> {
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        selectedColor = avaiableColor[index];
+                        selectedColor = availableColor[index];
                       });
                     },
                     child: Container(
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: avaiableColor[index],
+                        color: availableColor[index],
                         shape: BoxShape.circle,
                       ),
                       foregroundDecoration: BoxDecoration(
-                        border: selectedColor == avaiableColor[index]
+                        border: selectedColor == availableColor[index]
                             ? Border.all(
                                 color: Theme.of(context).primaryColor, width: 4)
                             : null,
