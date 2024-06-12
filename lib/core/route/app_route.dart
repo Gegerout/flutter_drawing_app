@@ -10,22 +10,6 @@ class AppRoute {
           builder: (_) => const DrawingRoomScreen(),
           settings: settings,
         );
-
-      case "/template":
-        return PageRouteBuilder(
-          settings: settings,
-          pageBuilder: (_, __, ___) => const SizedBox(),
-          transitionDuration: const Duration(milliseconds: 400),
-          transitionsBuilder: (_, animation, __, child) {
-            return SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1, 0),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
-            );
-          },
-        );
     }
 
     return null;
